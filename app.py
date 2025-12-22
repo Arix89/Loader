@@ -4,7 +4,7 @@ import random
 from datetime import datetime
 
 def main(page: ft.Page):
-    page.title = "📱 Мое приложение с GitHub"
+    page.title = "Мое приложение с GitHub"
     page.theme_mode = ft.ThemeMode.LIGHT
     page.padding = 20
     page.scroll = ft.ScrollMode.AUTO
@@ -12,7 +12,7 @@ def main(page: ft.Page):
     # Заголовок
     header = ft.Container(
         content=ft.Column([
-            ft.Text(
+            '''ft.Text(
                 "🎉 Мое первое приложение с GitHub!",
                 size=28,
                 weight=ft.FontWeight.BOLD,
@@ -23,7 +23,7 @@ def main(page: ft.Page):
                 size=16,
                 color=ft.Colors.GREEN,
                 text_align=ft.TextAlign.CENTER
-            ),
+            ),'''
         ]),
         alignment=ft.alignment.center,
         padding=10,
