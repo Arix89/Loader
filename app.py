@@ -12,7 +12,7 @@ def main(page: ft.Page):
     # Заголовок
     header = ft.Container(
         content=ft.Column([
-            '''ft.Text(
+            ft.Text(
                 "🎉 Мое первое приложение с GitHub!",
                 size=28,
                 weight=ft.FontWeight.BOLD,
@@ -23,7 +23,7 @@ def main(page: ft.Page):
                 size=16,
                 color=ft.Colors.GREEN,
                 text_align=ft.TextAlign.CENTER
-            ),'''
+            ),
         ]),
         alignment=ft.alignment.center,
         padding=10,
