@@ -1,0 +1,195 @@
+import tkinter as tk
+import math
+
+class Windows10BootScreen:
+    def __init__(self):
+        self.root = tk.Tk()
+        self.root.attributes('-fullscreen', True)
+        self.root.configure(bg='#000000')
+        self.root.overrideredirect(True)
+        
+        # Скрываем курсор мыши
+        self.root.config(cursor="none")
+        
+        # Таймер для скрытия мыши
+        self.mouse_timer = None
+        
+        # Показываем мышку при движении
+        self.root.bind('<Motion>', self.show_mouse_temporarily)
+        
+        # ТВОИ точные углы
+        original_angles = [
+            [80, 45, 130, 40, 130, 90, 80, 90],
+            [135, 40, 185, 35, 185, 90, 135, 90],
+            [105, 115, 155, 115, 155, 165, 105, 160],
+            [160, 115, 210, 115, 210, 170, 160, 165]
+        ]
+        
+        # Последние параметры
+        new_params = [
+            {'x': 80, 'y': 45, 'width': 50, 'height': 45},
+            {'x': 135, 'y': 40, 'width': 58, 'height': 50},
+            {'x': 80, 'y': 96, 'width': 50, 'height': 50},
+            {'x': 135, 'y': 96, 'width': 58, 'height': 55}
+        ]
+        
+        scale = 2.2
+        
+        # Трансформируем углы
+        self.squares = []
+        for i, angles in enumerate(original_angles):
+            min_x = min(angles[0], angles[2], angles[4], angles[6])
+            max_x = max(angles[0], angles[2], angles[4], angles[6])
+            min_y = min(angles[1], angles[3], angles[5], angles[7])
+            max_y = max(angles[1], angles[3], angles[5], angles[7])
+            
+            old_width = max_x - min_x
+            old_height = max_y - min_y
+            
+            new_width = new_params[i]['width']
+            new_height = new_params[i]['height']
+            new_x = new_params[i]['x']
+            new_y = new_params[i]['y']
+            
+            scale_x = new_width / old_width
+            scale_y = new_height / old_height
+            
+            new_angles = []
+            for j in range(0, len(angles), 2):
+                old_center_x = (min_x + max_x) / 2
+                old_center_y = (min_y + max_y) / 2
+                
+                rel_x = angles[j] - old_center_x
+                rel_y = angles[j+1] - old_center_y
+                
+                new_rel_x = rel_x * scale_x
+                new_rel_y = rel_y * scale_y
+                
+                new_center_x = new_x + new_width / 2
+                new_center_y = new_y + new_height / 2
+                
+                new_angles.append((new_center_x + new_rel_x) * scale)
+                new_angles.append((new_center_y + new_rel_y) * scale)
+            
+            self.squares.append(new_angles)
+        
+        self.angle = 0
+        
+        # Получаем размеры экрана
+        self.screen_width = self.root.winfo_screenwidth()
+        self.screen_height = self.root.winfo_screenheight()
+        
+        self.setup_ui()
+        self.animate_spinner()
+        
+        self.root.bind('<Escape>', lambda e: self.root.quit())
+        self.root.mainloop()
+    
+    def show_mouse_temporarily(self, event):
+        """Показывает мышку на 2 секунды при движении"""
+        self.root.config(cursor="")
+        
+        if self.mouse_timer:
+            self.root.after_cancel(self.mouse_timer)
+        
+        self.mouse_timer = self.root.after(2000, lambda: self.root.config(cursor="none"))
+    
+    def setup_ui(self):
+        # Находим реальные границы логотипа
+        all_x = []
+        all_y = []
+        for points in self.squares:
+            for i in range(0, len(points), 2):
+                all_x.append(points[i])
+                all_y.append(points[i+1])
+        
+        logo_min_x, logo_max_x = min(all_x), max(all_x)
+        logo_min_y, logo_max_y = min(all_y), max(all_y)
+        
+        logo_width = logo_max_x - logo_min_x
+        logo_height = logo_max_y - logo_min_y
+        
+        # Создаем главный фрейм
+        main_frame = tk.Frame(self.root, bg='#000000')
+        main_frame.pack(expand=True, fill='both')
+        
+        # Логотип по центру экрана
+        logo_y_offset = self.screen_height * 0.35
+        
+        # Canvas для логотипа
+        self.canvas = tk.Canvas(
+            main_frame,
+            width=logo_width + 100,
+            height=logo_height + 100,
+            bg='#000000',
+            highlightthickness=0
+        )
+        
+        canvas_x = (self.screen_width - (logo_width + 100)) // 2
+        canvas_y = int(logo_y_offset - (logo_height + 100) // 2)
+        
+        self.canvas.place(x=canvas_x, y=canvas_y)
+        
+        # Рисуем логотип
+        blue = '#0078D7'
+        offset_x = 50 - logo_min_x
+        offset_y = 50 - logo_min_y
+        
+        for points in self.squares:
+            shifted_points = []
+            for i, p in enumerate(points):
+                if i % 2 == 0:
+                    shifted_points.append(p + offset_x)
+                else:
+                    shifted_points.append(p + offset_y)
+            self.canvas.create_polygon(shifted_points, fill=blue, outline='')
+        
+        # Круговая загрузка
+        spinner_size = 70
+        self.spinner = tk.Canvas(
+            main_frame,
+            width=spinner_size,
+            height=spinner_size,
+            bg='#000000',
+            highlightthickness=0
+        )
+        
+        spinner_x = (self.screen_width - spinner_size) // 2
+        spinner_y = self.screen_height - 180
+        
+        self.spinner.place(x=spinner_x, y=spinner_y)
+    
+    def animate_spinner(self):
+        self.spinner.delete('all')
+        cx, cy = 35, 35
+        radius = 25
+        
+        num_dots = 10
+        
+        for i in range(num_dots):
+            angle_rad = math.radians(self.angle + i * (360 / num_dots))
+            x = cx + math.cos(angle_rad) * radius
+            y = cy + math.sin(angle_rad) * radius
+            
+            distance = abs((self.angle % 360) - i * (360 / num_dots))
+            if distance < 30 or distance > 330:
+                size = 5
+                brightness = 255
+            else:
+                size = 3
+                brightness = 180
+            
+            color = f'#{brightness:02x}{brightness:02x}{brightness:02x}'
+            
+            self.spinner.create_oval(
+                x - size, y - size,
+                x + size, y + size,
+                fill=color,
+                outline=''
+            )
+        
+        self.angle = (self.angle + 6) % 360
+        self.root.after(90, self.animate_spinner)
+
+if __name__ == "__main__":
+    app = Windows10BootScreen()
