@@ -11,12 +11,6 @@ class Windows10BootScreen:
         # Скрываем курсор мыши
         self.root.config(cursor="none")
         
-        # Таймер для скрытия мыши
-        self.mouse_timer = None
-        
-        # Показываем мышку при движении
-        self.root.bind('<Motion>', self.show_mouse_temporarily)
-        
         # ТВОИ точные углы
         original_angles = [
             [80, 45, 130, 40, 130, 90, 80, 90],
@@ -85,15 +79,6 @@ class Windows10BootScreen:
         self.root.bind('<Escape>', lambda e: self.root.quit())
         self.root.mainloop()
     
-    def show_mouse_temporarily(self, event):
-        """Показывает мышку на 2 секунды при движении"""
-        self.root.config(cursor="")
-        
-        if self.mouse_timer:
-            self.root.after_cancel(self.mouse_timer)
-        
-        self.mouse_timer = self.root.after(2000, lambda: self.root.config(cursor="none"))
-    
     def setup_ui(self):
         # Находим реальные границы логотипа
         all_x = []
@@ -144,7 +129,7 @@ class Windows10BootScreen:
                     shifted_points.append(p + offset_y)
             self.canvas.create_polygon(shifted_points, fill=blue, outline='')
         
-        # Круговая загрузка
+        # Круговая загрузка (неполный круг, как в Windows 10)
         spinner_size = 70
         self.spinner = tk.Canvas(
             main_frame,
@@ -155,7 +140,7 @@ class Windows10BootScreen:
         )
         
         spinner_x = (self.screen_width - spinner_size) // 2
-        spinner_y = self.screen_height - 180
+        spinner_y = self.screen_height - 180  # Поднял выше
         
         self.spinner.place(x=spinner_x, y=spinner_y)
     
@@ -164,13 +149,16 @@ class Windows10BootScreen:
         cx, cy = 35, 35
         radius = 25
         
+        # В Windows 10 используется 10 точек в круге
         num_dots = 10
         
         for i in range(num_dots):
+            # Расчет угла
             angle_rad = math.radians(self.angle + i * (360 / num_dots))
             x = cx + math.cos(angle_rad) * radius
             y = cy + math.sin(angle_rad) * radius
             
+            # Эффект "головы" вращения - одна точка больше и ярче
             distance = abs((self.angle % 360) - i * (360 / num_dots))
             if distance < 30 or distance > 330:
                 size = 5
@@ -188,6 +176,7 @@ class Windows10BootScreen:
                 outline=''
             )
         
+        # Медленное вращение
         self.angle = (self.angle + 6) % 360
         self.root.after(90, self.animate_spinner)
 
