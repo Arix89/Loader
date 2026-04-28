@@ -8,10 +8,8 @@ class Windows10BootScreen:
         self.root.configure(bg='#000000')
         self.root.overrideredirect(True)
         
-        # Скрываем курсор мыши
         self.root.config(cursor="none")
         
-        # ТВОИ точные углы
         original_angles = [
             [80, 45, 130, 40, 130, 90, 80, 90],
             [135, 40, 185, 35, 185, 90, 135, 90],
@@ -19,7 +17,6 @@ class Windows10BootScreen:
             [160, 115, 210, 115, 210, 170, 160, 165]
         ]
         
-        # Последние параметры
         new_params = [
             {'x': 80, 'y': 45, 'width': 50, 'height': 45},
             {'x': 135, 'y': 40, 'width': 58, 'height': 50},
@@ -29,7 +26,6 @@ class Windows10BootScreen:
         
         scale = 2.2
         
-        # Трансформируем углы
         self.squares = []
         for i, angles in enumerate(original_angles):
             min_x = min(angles[0], angles[2], angles[4], angles[6])
@@ -80,7 +76,6 @@ class Windows10BootScreen:
         self.root.mainloop()
     
     def setup_ui(self):
-        # Находим реальные границы логотипа
         all_x = []
         all_y = []
         for points in self.squares:
@@ -94,14 +89,11 @@ class Windows10BootScreen:
         logo_width = logo_max_x - logo_min_x
         logo_height = logo_max_y - logo_min_y
         
-        # Создаем главный фрейм
         main_frame = tk.Frame(self.root, bg='#000000')
         main_frame.pack(expand=True, fill='both')
         
-        # Логотип по центру экрана
         logo_y_offset = self.screen_height * 0.35
         
-        # Canvas для логотипа
         self.canvas = tk.Canvas(
             main_frame,
             width=logo_width + 100,
@@ -115,7 +107,6 @@ class Windows10BootScreen:
         
         self.canvas.place(x=canvas_x, y=canvas_y)
         
-        # Рисуем логотип
         blue = '#0078D7'
         offset_x = 50 - logo_min_x
         offset_y = 50 - logo_min_y
@@ -129,7 +120,6 @@ class Windows10BootScreen:
                     shifted_points.append(p + offset_y)
             self.canvas.create_polygon(shifted_points, fill=blue, outline='')
         
-        # Круговая загрузка (неполный круг, как в Windows 10)
         spinner_size = 70
         self.spinner = tk.Canvas(
             main_frame,
@@ -140,7 +130,7 @@ class Windows10BootScreen:
         )
         
         spinner_x = (self.screen_width - spinner_size) // 2
-        spinner_y = self.screen_height - 180  # Поднял выше
+        spinner_y = self.screen_height - 180  
         
         self.spinner.place(x=spinner_x, y=spinner_y)
     
@@ -149,16 +139,13 @@ class Windows10BootScreen:
         cx, cy = 35, 35
         radius = 25
         
-        # В Windows 10 используется 10 точек в круге
         num_dots = 10
         
         for i in range(num_dots):
-            # Расчет угла
             angle_rad = math.radians(self.angle + i * (360 / num_dots))
             x = cx + math.cos(angle_rad) * radius
             y = cy + math.sin(angle_rad) * radius
             
-            # Эффект "головы" вращения - одна точка больше и ярче
             distance = abs((self.angle % 360) - i * (360 / num_dots))
             if distance < 30 or distance > 330:
                 size = 5
@@ -176,7 +163,6 @@ class Windows10BootScreen:
                 outline=''
             )
         
-        # Медленное вращение
         self.angle = (self.angle + 6) % 360
         self.root.after(90, self.animate_spinner)
 
